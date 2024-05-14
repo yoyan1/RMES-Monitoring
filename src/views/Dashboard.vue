@@ -1,5 +1,8 @@
 <script setup>
+// import Calendar from '../components/Calendar.vue';
+import { useCurrentUser } from 'vuefire'
 
+const user = useCurrentUser()
 </script>
 <template>
     <div class="card flex gap-5 flex-nowrap">
@@ -49,4 +52,6 @@
             </div>
         </div>
     </div>
+    {{ user.email }}
+    <Calendar/>
 </template>

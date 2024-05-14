@@ -3,23 +3,30 @@
 import { ref } from "vue";
 import Dialog from "primevue/dialog";
 import Btn from "primevue/button";
+import Calendar from "primevue/calendar";
 
+const position = ref('center');
 const visible = ref(false);
+const date = ref()
 
+const openPosition = (pos) => {
+    position.value = pos;
+    visible.value = true;
+}
 const props = defineProps({
     isNew: Boolean
 })
 
 </script>
 <template>
-    <Btn label="Student" icon="pi pi-plus" class="\ text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" @click="visible = true" v-if="isNew"/>
-    <button type="button" class="py-2 px-3 flex items-center text-sm font-medium text-center text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" @click="visible=true" v-else>
+    <Btn label="Student" icon="pi pi-plus" class="\ text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800" @click="openPosition('left')" v-if="isNew"/>
+    <button type="button" class="py-2 px-3 flex items-center text-sm font-medium text-center text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" @click="openPosition('left')"  v-else>
         <svg class="w-5 h-5  text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"/>
         </svg> 
     </button>
-    <div class="fixed top-0 left-0 right-0 bg-black-500 transparent modal" v-if="visible">
-        <Dialog v-model:visible="visible" modal :header="isNew? 'Add Student' : 'Update Student'" class="overflow-y-auto" :style="{ width: '50rem', maxHeight: '100vh' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
+    <div class="fixed top-0 left-0 right-0 bg-black-500 modal" v-if="visible">
+        <Dialog v-model:visible="visible" :header="isNew? 'Add Student' : 'Update Student'" class="overflow-y-auto" :style="{ width: '50rem', maxHeight: '100vh' }" :position="position" :modal="true" :draggable="false">
             <!-- Modal content -->
             <div>
                     <!-- Modal header -->
@@ -31,10 +38,11 @@ const props = defineProps({
                         <div class="grid gap-4 mb-4 sm:grid-cols-2">
                             <div>
                                 <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Student Name</label>
-                                <input type="text" name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="full name" required>
+                                <input type="text" name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-5000" placeholder="full name" required>
                             </div>
                             <div>
-                                <label for="category" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Gender</label><select id="category" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                <label for="category" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Gender</label>
+                                <select id="category" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-5000">
                                     <option selected>Select gender</option>
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
@@ -42,42 +50,46 @@ const props = defineProps({
                             </div>
                             <div>
                                 <label for="d-birth" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date of Birth</label>
-                                <input type="date" name="d-birth" id="d-birt" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600  dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required>
+                                <Calendar v-model="date" class="w-full border border-slate-300 rounded-md text-sm shadow-sm placeholder-blue-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-5000" placeholder="date of birth" id="d-birth" />
                             </div>
                             <div>
-                                <label for="price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Province</label>
-                                <input type="text" name="price" id="price" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="enter province" required>
+                                <label for="province" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Province</label>
+                                <input  type="text" name="province" id="price" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-5000" placeholder="enter province" required>
                             </div>
                             <div>
-                                <label for="price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Municipality</label>
-                                <input type="text" name="price" id="price" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="municipality" required>
+                                <label for="municipality" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Municipality</label>
+                                <input type="text" name="municipality" id="municipality" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-5000" placeholder="municipality" required>
                             </div>
                             <div>
-                                <label for="price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Barangay</label>
-                                <input type="text" name="price" id="price" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="barangay" required>
+                                <label for="barangay" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Barangay</label>
+                                <input type="text" name="barangay" id="barangay" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-5000" placeholder="barangay" required>
                             </div>
                             <div>
                                 <label for="price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Street</label>
-                                <input type="text" name="price" id="price" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="street" required>
+                                <input type="text" name="price" id="price" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-5000" placeholder="street" required>
                             </div>
                             <div>
                                 <label for="price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Zone</label>
-                                <input type="text" name="price" id="price" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="zone" required>
+                                <input type="text" name="price" id="price" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-5000" placeholder="zone" required>
                             </div>
                             <div>
                                 <label for="price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Parents/Guardian</label>
-                                <input type="text" name="price" id="price" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="parents/guardian" required>
+                                <input type="text" name="price" id="price" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-5000" placeholder="parents/guardian" required>
                             </div>
                             <div>
                                 <label for="price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Contact Number</label>
-                                <input type="number" name="price" id="price" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="#" required>
+                                <input type="number" name="price" id="price" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-5000" placeholder="#" required>
+                            </div>
+                            <div>
+                                <label for="price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mobile Token</label>
+                                <input type="text" name="price" id="price" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-5000" placeholder="#" required>
                             </div>
                         </div>
                         <!-- Educational Detail -->
                         <p class="text-2xl text-gray-900 dark:text-white">Educational Details</p><br>
                         <div class="grid gap-4 mb-4 sm:grid-cols-2">
                             <div>
-                                <label for="category" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Level</label><select id="category" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                                <label for="category" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Level</label><select id="category" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-5000">
                                     <option selected>Select grade level</option>
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
@@ -85,11 +97,11 @@ const props = defineProps({
                             </div>
                             <div>
                                 <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Section</label>
-                                <input type="text" name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="section" required>
+                                <input type="text" name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-5000" placeholder="section" required>
                             </div>
                             <div>
                                 <label for="price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">LRN</label>
-                                <input type="number" name="price" id="price" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="learners reference number" required>
+                                <input type="number" name="price" id="price" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-5000" placeholder="learners reference number" required>
                             </div>
                         </div>
                         <p class="text-2xl text-gray-900 dark:text-white">Upload</p><br>
@@ -112,8 +124,8 @@ const props = defineProps({
                             </div>
                         </div>
                         <div class="items-center space-y-4 sm:flex sm:space-y-0 sm:space-x-4">
-                            <Btn :label="isNew? 'Add Student' : 'Update Studente'" class="w-full sm:w-auto justify-center text-white inline-flex bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"/>
-                            <Btn @click="visible = false" label="Discard" icon="pi pi-times"  class="w-full sm:w-auto justify-center text-black-500 inline-flex bg-white hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"/>
+                            <Btn :label="isNew? 'Add Student' : 'Update Studente'" class="w-full sm:w-auto justify-center text-white inline-flex bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"/>
+                            <Btn @click="visible = false" label="Discard" icon="pi pi-times"  class="w-full sm:w-auto justify-center text-black-500 inline-flex bg-white hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"/>
                         </div>
                     </form>
             </div>
@@ -125,7 +137,7 @@ const props = defineProps({
 
 <style scoped>
 .modal{
-    width: 100%; height: 100vh; background:black; z-index:200;
+    width: 100%; height: 100vh; background:#000000cb; z-index:200;
     opacity: 25%;
 }
 </style>

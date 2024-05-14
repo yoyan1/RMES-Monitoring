@@ -39,6 +39,9 @@ export default {
             // Transitions
             'transition-colors',
             'duration-200',
+            'bg-gray-50',
+            'p-1',
+            'focus:outline-none focus:ring-blue-500 dark:focus:ring-blue-400 focus:z-10',
 
             // States
             {
@@ -106,7 +109,8 @@ export default {
             'border-surface-200 dark:border-surface-700',
 
             //misc
-            { 'overflow-x-auto': props.inline }
+            { 'overflow-x-auto': props.inline },
+            'bg-white'
         ]
     }),
     datepickerMask: {
@@ -280,7 +284,7 @@ export default {
         class: ['leading-5', 'text-surface-600 dark:text-white/70', 'opacity-60 cursor-default']
     },
     weeknumber: {
-        class: ['text-surface-600 dark:text-white/70', 'opacity-60 cursor-default']
+        class: ['text-surface-600 dark:text-white/70 ', 'opacity-60 cursor-default']
     },
     weekday: {
         class: [
@@ -292,7 +296,8 @@ export default {
     day: {
         class: [
             // Spacing
-            'p-1'
+            'p-1',
+
         ]
     },
     weeklabelcontainer: ({ context }) => ({

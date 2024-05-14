@@ -5,7 +5,8 @@ export default {
             'w-96 rounded-md',
 
             // Positioning
-            { '-translate-x-2/4': props.position == 'top-center' || props.position == 'bottom-center' }
+            { '-translate-x-2/4': props.position == 'top-center' || props.position == 'bottom-center' },
+            // 'bg-white'
         ]
     }),
     container: ({ props }) => ({
@@ -17,10 +18,10 @@ export default {
             // Colors
             {
                 'bg-blue-50/90 dark:bg-blue-500/20': props.message.severity == 'info',
-                'bg-green-50/90 dark:bg-green-500/20': props.message.severity == 'success',
+                'bg-green-90 dark:bg-green-500': props.message.severity == 'success',
                 'bg-surface-50 dark:bg-surface-800': props.message.severity == 'secondary',
                 'bg-orange-50/90 dark:bg-orange-500/20': props.message.severity == 'warn',
-                'bg-red-50/90 dark:bg-red-500/20': props.message.severity == 'error',
+                'bg-red-90 dark:bg-red-500': props.message.severity == 'error',
                 'bg-surface-950 dark:bg-surface-0': props.message.severity == 'contrast'
             },
             {
@@ -28,7 +29,7 @@ export default {
                 'border-green-200 dark:border-green-500/20': props.message.severity == 'success',
                 'border-surface-300 dark:border-surface-500/20': props.message.severity == 'secondary',
                 'border-orange-200 dark:border-orange-500/20': props.message.severity == 'warn',
-                'border-red-200 dark:border-red-500/20': props.message.severity == 'error',
+                'border-red-300 dark:border-red-500/20': props.message.severity == 'error',
                 'border-surface-950 dark:border-surface-0': props.message.severity == 'contrast'
             },
             {

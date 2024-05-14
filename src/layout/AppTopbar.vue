@@ -2,8 +2,15 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useLayout } from '@/layout/composables/layout';
 import { useRouter } from 'vue-router';
-
+import { getAuth, signOut } from 'firebase/auth';
 const { layoutConfig, onMenuToggle } = useLayout();
+
+const auth = getAuth()
+signOut(auth).then(() => {
+  console.log("sign out");
+}).catch((error) => {
+  // An error happened.
+});
 
 const outsideClickListener = ref(null);
 const topbarMenuActive = ref(false);
@@ -77,7 +84,7 @@ const isOutsideClicked = (event) => {
                 <i class="pi pi-calendar"></i>
                 <span>Calendar</span>
             </button>
-            <button @click="onTopBarMenuButton()" class="p-link layout-topbar-button">
+            <button @click="signOut" class="p-link layout-topbar-button">
                 <i class="pi pi-user"></i>
                 <span>Profile</span>
             </button>

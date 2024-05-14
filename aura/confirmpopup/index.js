@@ -11,7 +11,7 @@ export default {
             'mt-3 absolute left-0 top-0',
 
             // Color
-            'bg-surface-0 dark:bg-surface-900',
+            'bg-white',
             'text-surface-700 dark:text-surface-0/80',
 
             // Before: Arrow
@@ -86,12 +86,12 @@ export default {
                 'rounded-md',
 
                 // Color
-                'text-primary-inverse',
-                'bg-primary',
-                'border border-primary',
+                'text-white',
+                'bg-blue-600',
+                'border border-blue-600',
 
                 // States
-                'hover:bg-primary-hover hover:border-primary-hover',
+                'hover:bg-blue-400 hover:border-blue-400',
                 'focus:outline-none focus:outline-offset-0 focus:ring',
                 'focus:ring-primary-500 dark:focus:ring-primary-400'
             ]
