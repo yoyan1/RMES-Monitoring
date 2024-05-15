@@ -1,10 +1,44 @@
 <script setup>
-import AddStudentModal from '@/studentComponents/AddStudents.vue';
+import { ref, computed, onMounted } from 'vue';
+import AddStudentModal from '@/studentComponents/AddOrUpdate.vue';
 import ConfirmPop from '@/studentComponents/ConfirmationPop.vue';
 import PreviewStudent from '@/studentComponents/PreviewStudent.vue';
+import { useCollection } from 'vuefire'
+import { collection } from 'firebase/firestore'
+import { db } from '@/firebaseConfig/config';
+import Message from 'primevue/message';
+
+const students = useCollection(collection(db, 'students')) //rendered firestore
+
+const searchInput = ref('')//search input name and lrn
+const filterLevel = ref('')//filter grade level
+
+// Define a computed property to filter students based on search query
+const filteredStudents = computed(() => {
+    const search = searchInput.value.toLowerCase()
+    const level = filterLevel.value
+
+    return students.value.filter(student => {
+        const fullNameMatches = student.fullname.toLowerCase().includes(search)
+        const newLRN = student.lrn + ""
+        const lrnMatches = newLRN.includes(search)
+        const levelMatches = student.level == level
+
+        if (search && level) {
+            return (fullNameMatches || lrnMatches) && levelMatches
+        } else if (level) {
+            return levelMatches
+        } else if (search) {
+            return fullNameMatches || lrnMatches
+        } else {
+            return true
+        }
+    })
+})
 
 </script>
 <template>
+    <Message :severity="toastType.value" :sticky="false" v-if="toastType" :life="1000" class="fixed right-0 z-50">{{ toastMessage }}</Message>
     <!-- <section class="bg-gray-50 dark:bg-gray-900  antialiased"> -->
         <div class="mx-auto">
             <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
@@ -35,20 +69,20 @@ import PreviewStudent from '@/studentComponents/PreviewStudent.vue';
                                         <path fill-rule="evenodd" clip-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" />
                                     </svg>
                                 </div>
-                                <input type="text" id="simple-search" placeholder="Search name or LRN" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-5000">
+                                <input v-model="searchInput" type="text" id="simple-search" placeholder="Search name or LRN" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-5000">
                             </div>
                         </form>
                     </div>
                     <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
                         <AddStudentModal :isNew="true" />
-                        <select id="countries" class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 ">
-                           <option selected>Level</option>
+                        <select v-model="filterLevel" id="countries" class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 ">
+                           <option value="">All</option>
                            <option value="I">Grade I</option>
-                           <option value="I">Grade II</option>
-                           <option value="I">Grade III</option>
-                           <option value="I">Grade IV</option>
-                           <option value="I">Grade V</option>
-                           <option value="I">Grade VI</option>
+                           <option value="II">Grade II</option>
+                           <option value="III">Grade III</option>
+                           <option value="IV">Grade IV</option>
+                           <option value="V">Grade V</option>
+                           <option value="VI">Grade VI</option>
                          </select>
                         <div class="flex items-center space-x-3 w-full md:w-auto">
                             <button  class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-red-600 focus:outline-none bg-white rounded-lg border border-red-600 hover:bg-gray-100 hover:text-red-700 focus:z-10 focus:ring-4 focus:ring-red-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white hover:bg-red-200" type="button">
@@ -71,35 +105,40 @@ import PreviewStudent from '@/studentComponents/PreviewStudent.vue';
                                 <th scope="col" class="p-4">Action</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                
+                        <tbody v-if="filteredStudents.length > 0">
+                            <tr v-for="student in filteredStudents" :key="student.id" class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700" >
                                 <th class="text-base px-4 py-3 font-medium text-gray-900  dark:text-white">
                                     <div class="flex items-center mr-3">
-                                        <img src="https://flowbite.s3.amazonaws.com/blocks/application-ui/products/imac-front-image.png" alt="iMac Front Image" class="h-8 w-auto mr-3">
-                                        Clarion, Roland L.
+                                        <img :src="student.imageUrl"  class="h-10 w-10 mr-3 rounded-full" v-if="student.imageUrl">
+                                        <img src="@/components/images/default.jpg"  class="h-10 w-10 mr-3 rounded-full" v-else>
+                                       {{ student.fullname }}
                                     </div>
                                 </th>
-                                <td class="text-base  px-3 py-3 font-medium text-gray-900  dark:text-gray-400">123456789</td>
+                                <td class="text-base  px-3 py-3 font-medium text-gray-900  dark:text-gray-400">{{ student.lrn }}</td>
                                 <td class="px-3 py-3">
-                                    <span class="text-base  bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">Grade V</span>
+                                    <span class="text-base  bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">Grade {{ student.level }}</span>
                                 </td>
-                                <td class="text-base  px-4 py-3 font-medium text-gray-900  dark:text-white">14</td>
-                                <td class="text-base  px-4 py-3 font-medium text-gray-900  dark:text-white">male</td>
+                                <td class="text-base  px-4 py-3 font-medium text-gray-900  dark:text-white">11</td>
+                                <td class="text-base  px-4 py-3 font-medium text-gray-900  dark:text-white">{{ student.gender }}</td>
                                 <td class="text-base  px-4 py-3 font-medium text-gray-900  dark:text-white">
                                     <div class="flex items-center">
-                                        <div class="h-4 w-4 rounded-full inline-block mr-2 bg-red-700"></div>
-                                        absent
+                                        <!-- <div class="h-4 w-4 rounded-full inline-block mr-2 bg-red-700"></div> -->
+                                        offline 
                                     </div>
                                 </td>
                                 <td class="text-base  px-4 py-3 font-medium text-gray-900  dark:text-white">just now</td>
                                 <td class="px-4 py-3 font-medium text-gray-900  dark:text-white">
                                     <div class="flex items-center space-x-4">
-                                        <AddStudentModal :isNew="false"/>
-                                        <PreviewStudent></PreviewStudent>
+                                        <AddStudentModal :isNew="false" :studentData="student"/>
+                                        <PreviewStudent :studentData="student"></PreviewStudent>
                                         <ConfirmPop/>
                                     </div>
                                 </td>
+                            </tr>
+                        </tbody>
+                        <tbody v-else>
+                            <tr>
+                                <td colspan="8" class="text-center text-xl  px-4 py-3 font-medium text-gray-900  dark:text-white">no match found</td>
                             </tr>
                         </tbody>
                     </table>

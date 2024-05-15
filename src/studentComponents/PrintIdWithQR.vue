@@ -4,14 +4,17 @@ import Dialog from "primevue/dialog";
 import { ref } from "vue";
 import QrcodeVue from 'qrcode.vue'
 
+defineProps({
+    id: String
+})
 const visible = ref(false);
-const value = 'https://example.com'
+
 </script>
 <template>
         <Button label="Show" @click="visible = true" />
         <div class="fixed top-0 left-0 right-0 bg-black-500 transparent modal" v-if="visible">
             <Dialog v-model:visible="visible" modal header="Print ID" :style="{ width: '50rem', height: '80vh' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
-                <qrcode-vue :value="value" size="100"  />
+                <qrcode-vue :value="id" size="100"  />
             </Dialog>
         </div>
 </template>

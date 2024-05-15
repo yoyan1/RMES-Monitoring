@@ -6,11 +6,13 @@ import { getAuth, signOut } from 'firebase/auth';
 const { layoutConfig, onMenuToggle } = useLayout();
 
 const auth = getAuth()
-signOut(auth).then(() => {
-  console.log("sign out");
-}).catch((error) => {
-  // An error happened.
-});
+function signout(){
+    signOut(auth).then(() => {
+      console.log("sign out");
+    }).catch((error) => {
+      
+    });
+}
 
 const outsideClickListener = ref(null);
 const topbarMenuActive = ref(false);
@@ -84,7 +86,7 @@ const isOutsideClicked = (event) => {
                 <i class="pi pi-calendar"></i>
                 <span>Calendar</span>
             </button>
-            <button @click="signOut" class="p-link layout-topbar-button">
+            <button @click="signout" class="p-link layout-topbar-button">
                 <i class="pi pi-user"></i>
                 <span>Profile</span>
             </button>

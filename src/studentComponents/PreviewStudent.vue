@@ -2,12 +2,16 @@
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import { ref } from "vue";
-import AddStudents from "./AddStudents.vue";
+import AddStudents from "./AddOrUpdate.vue";
 import ConfirmationPop from "./ConfirmationPop.vue";
 import PrintID from "./PrintIdWithQR.vue"
 
 const position = ref('center');
 const visible = ref(false);
+
+const props = defineProps({
+    studentData: Object
+})
 
 const openPosition = (pos) => {
     position.value = pos;
@@ -26,9 +30,10 @@ const openPosition = (pos) => {
                 <div class="flex flex-col items-center mb-4 sm:mb-5">
                     <div class="w-full max-w-sm bg-white  rounded-lg dark:border-gray-700">
                         <div class="flex flex-col items-center pb-10"><br><br>
-                            <img class="w-24 h-24 mb-3 rounded-full shadow-lg" src="../components/images/default.jpg" alt="Bonnie image"/>
-                            <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">Bonnie Green</h5>
-                            <span class="text-sm text-gray-500 dark:text-gray-400">Grade V</span>
+                            <img class="w-24 h-24 mb-3 rounded-full shadow-lg" :src="props.studentData.imageUrl" alt="image" v-if="props.studentData.imageUrl"/>
+                            <img class="w-24 h-24 mb-3 rounded-full shadow-lg" src="../components/images/default.jpg" alt="default" v-else/>
+                            <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">{{props.studentData.fullname}}</h5>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Grade {{ props.studentData.level }}</span>
                         </div>
                     </div>
                 </div><hr class="border border-gray-200">
@@ -43,13 +48,27 @@ const openPosition = (pos) => {
                                             FullName:
                                         </th>
                                         <td class="px-6">
-                                            Roland Clarion
+                                            {{ props.studentData.fullname }}
                                         </td>
                                         <th class="py-1 font-medium text-gray-500  dark:text-gray-400">
                                             Gender:
                                         </th>
                                         <td class="px-6">
-                                            Male
+                                            {{ props.studentData.gender }}
+                                        </td>
+                                    </tr>
+                                    <tr class="bg-white">
+                                        <th class="font-medium text-gray-500  dark:text-gray-400">
+                                            Date of Birth:
+                                        </th>
+                                        <td class="px-6">
+                                            {{ props.studentData.fullname }}
+                                        </td>
+                                        <th class="py-1 font-medium text-gray-500  dark:text-gray-400">
+                                            Age:
+                                        </th>
+                                        <td class="px-6">
+                                            {{ props.studentData.gender }}
                                         </td>
                                     </tr>
                                     <tr class="bg-white">
@@ -57,7 +76,7 @@ const openPosition = (pos) => {
                                             LRN:
                                         </th>
                                         <td class="px-6">
-                                            134567890
+                                            {{ props.studentData.lrn }}
                                         </td>
                                         <th class="py-1 font-medium text-gray-500  dark:text-gray-400">
                                             Adviser:
@@ -71,13 +90,13 @@ const openPosition = (pos) => {
                                             Grade: 
                                         </th>
                                         <td class="px-6">
-                                            V
+                                            {{ props.studentData.level }}
                                         </td>
                                         <th class="py-1 font-medium text-gray-500  dark:text-gray-400">
                                             Section: 
                                         </th>
                                         <td class="px-6">
-                                            Kamatis
+                                            {{ props.studentData.section }}
                                         </td>
                                     </tr>
                                 </tbody>
@@ -89,26 +108,26 @@ const openPosition = (pos) => {
                     <div class="col-span-2 p-3 bg-gray-100 rounded-lg border border-gray-200 dark:bg-gray-700 sm:col-span-1 dark:border-gray-600">
                         <dt class="mb-2 font-semibold leading-none text-gray-900 dark:text-white">Parents/Guardian</dt>
                         <dd class="flex items-center text-gray-500 dark:text-gray-400">
-                            Roland Clarion
+                            {{ props.studentData.parent }}
                         </dd>
                     </div>
                     <div class="col-span-2 p-3 bg-gray-100 rounded-lg border border-gray-200 dark:bg-gray-700 sm:col-span-1 dark:border-gray-600">
                         <dt class="mb-2 font-semibold leading-none text-gray-900 dark:text-white">Address</dt>
                         <dd class="flex items-center space-x-2 font-light text-gray-500 dark:text-gray-400">
-                            SO. Mabuni, Barangay Guadalupe, San Carlos City, Negros Occidental
+                            {{ props.studentData.street + ', ' +  props.studentData.barangay + ', ' + props.studentData.municipality + ', ' + props.studentData.province}}
+                            {{ 'zone: ' + props.studentData.zone  }}
                         </dd>
                     </div>
                     <div class="p-3 bg-gray-100 rounded-lg border border-gray-200 dark:bg-gray-700 dark:border-gray-600">
                         <dt class="mb-2 font-semibold leading-none text-gray-900 dark:text-white">Contact Number</dt>
                         <dd class="text-gray-500 dark:text-gray-400">
-                            09123456789
+                            {{ props.studentData.contact_number }}
                         </dd>
                     </div>
                     <div class="col-span-2 p-3 bg-gray-100 rounded-lg border border-gray-200 dark:bg-gray-700 sm:col-span-1 dark:border-gray-600">
                         <dt class="mb-2 font-semibold leading-none text-gray-900 dark:text-white">Mobile Token</dt>
                         <dd class="flex items-center space-x-2 font-light text-gray-500 dark:text-gray-400">
-                            XJDH382IR9CH839UR
-                            983DNWIE438
+                            {{ props.studentData.token }}
                         </dd>
                     </div>
                 </dl>
@@ -173,7 +192,7 @@ const openPosition = (pos) => {
                 <div class="flex bottom-0 left-0 justify-center pb-4 space-x-4 w-full">
                     <AddStudents/>
                     <ConfirmationPop/>
-                    <PrintID/>
+                    <PrintID :id="props.studentData.id"/>
                     <!-- <button type="button" class="text-white w-full inline-flex items-center justify-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
                         <svg aria-hidden="true" class="mr-1 -ml-1 w-5 h-5" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />

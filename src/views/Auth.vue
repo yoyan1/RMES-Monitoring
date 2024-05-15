@@ -3,15 +3,19 @@ import Button from "primevue/button";
 import Checkbox from "primevue/checkbox";
 import InputText from "primevue/inputtext";
 import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { getRedirectResult, signInWithEmailAndPassword, signOut, } from 'firebase/auth'
 import { useCurrentUser, useFirebaseAuth } from 'vuefire'
 
 const router = useRouter()
+const route = useRoute()
+
 const auth = useFirebaseAuth() // only exists on client side
 
 const email = ref(null)
 const password = ref(null)
+const errorMessage = ref()
+
 
 function signin() {
     signInWithEmailAndPassword(auth, email.value, password.value)
@@ -19,11 +23,31 @@ function signin() {
       // Signed in 
       const user = userCredential.user;
       console.log("succesfully log in");
-      router.push('/home/overview')
+      router.push(route.query.redirect || '/home/overview')
     })
     .catch((error) => {
       const errorCode = error.code;
-      const errorMessage = error.message;
+      switch (error.code) {
+        case 'auth/invalid-email':
+              errorMessage.value = "Invalid Email"
+          break;
+        
+        case 'auth/user-not-found':
+            errorMessage.value = "No account with that email not found"
+        break;
+      
+        case 'auth/wrong-password':
+              errorMessage.value = "Incorrect password"
+          break;
+        
+        case 'auth/too-many-requests':
+            errorMessage.value = "Too many request try again later"
+        break;
+      
+        default:
+            errorMessage.value = "Email or Pasword Incorrect"
+          break;
+      }
     });
 }
 // onMounted(() => {
@@ -41,6 +65,7 @@ function signin() {
             <h4>Welcome, Admin!</h4>
             <p>Sign in to continue</p>
             <div>
+                <p>{{ errorMessage }}</p>
                 <label for="email" class="block text-900 text-xl font-medium mb-2">Email</label>
                 <InputText v-model="email" id="email" type="email"  placeholder="Enter your email" class="bg-white w-full md:w-30rem mb-5" style="padding: 1rem; width:25rem" />
                 <label for="password" class="block text-900 text-xl font-medium mb-2">Password</label>

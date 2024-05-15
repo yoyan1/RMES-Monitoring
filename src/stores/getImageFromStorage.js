@@ -1,6 +1,6 @@
 import { ref, onMounted } from 'vue';
 import { getDownloadURL, ref as storageRef } from 'firebase/storage';
-import { storage } from '@/firebase/firebase';
+import { storage } from '@/firebaseConfig/config';
 
 export default function useFirebaseStorage(imagePath, image) {
   const imageUrl = ref(null);
