@@ -19,6 +19,7 @@ import { ref } from "vue";
 
     function clear(){
       image.value = null
+      file = ''
     }
   
   export {image, file, onFileChange, clear}

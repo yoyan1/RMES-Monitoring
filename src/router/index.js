@@ -12,6 +12,11 @@ const router = createRouter({
           component: () => import('../views/Auth.vue')
       },
       {
+          path: '/scanner',
+          name: 'scanner',
+          component: () => import('../views/QrScanner.vue')
+      },
+      {
           path: '/',
           name: 'home',
           component: AppLayout,
@@ -26,6 +31,11 @@ const router = createRouter({
                   path: 'pages/students',
                   name: 'students',
                   component: () => import('../views/pages/Students.vue')
+              },
+              {
+                  path: 'pages/attendance',
+                  name: 'attendance',
+                  component: () => import('../views/pages/Attendance.vue')
               },
           ]
       },

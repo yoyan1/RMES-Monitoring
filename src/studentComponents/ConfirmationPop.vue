@@ -28,6 +28,11 @@ import { useToast } from "primevue/usetoast";
 import ConfirmPopup from "primevue/confirmpopup";
 import Toast from "primevue/toast";
 import { ref } from "vue";
+import { deleteData } from "@/stores/crud";
+
+const props = defineProps({
+    id: String
+})
 const confirm = useConfirm();
 const toast = useToast();
 
@@ -49,12 +54,11 @@ const showTemplate = (event) => {
             label: 'Confirm'
         },
         accept: () => {
-            toast.add({severity:'success', summary:'Confirmed', detail:'Deleted successfully', life: 3000});
-            isSucces.value = true
+            const tableName = 'students'
+            deleteData(tableName, props.id)
         },
         reject: () => {
-            toast.add({severity:'error', summary:'Rejected', detail:'Delete canceled', life: 3000});
-            isSucces.value = false
+            
         }
     });
 }

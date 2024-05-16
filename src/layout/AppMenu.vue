@@ -21,7 +21,7 @@ const model = ref([
             {
                 label: 'Attendance',
                 icon: 'pi pi-fw pi-calendar',
-                to: '/pages/crud'
+                to: '/pages/attendance'
             },
             {
                 label: 'Request',

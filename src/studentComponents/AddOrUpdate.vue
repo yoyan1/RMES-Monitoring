@@ -5,8 +5,8 @@ import Dialog from "primevue/dialog";
 import Btn from "primevue/button";
 import Calendar from "primevue/calendar";
 import Message from "primevue/message";
-import { onFileChange, file, image } from "@/stores/imageFileHandler";
-import { AddStudentData, toastType } from "@/stores/addData";
+import { onFileChange, file, image, clear } from "@/stores/imageFileHandler";
+import { AddStudentData, toastType, updateStudentData } from "@/stores/crud";
 import { upload } from "@/stores/imageUpload";
 import { getDownloadURL, ref as storageRef } from 'firebase/storage';
 import { storage } from "@/firebaseConfig/config";
@@ -49,16 +49,36 @@ onMounted(()=>{
 
 async function addData(){
     const path = 'studentsImage/'
-    await upload(path, file)
-    const imageRef = storageRef(storage, path + file.name);
-    const url = await getDownloadURL(imageRef);
-    studentData.value.imageUrl = url
-    try{
-        AddStudentData(studentData.value)
-        visible.value = false
-    } catch(error){
+    const tableName = 'students'
+
+    //define if file has image 
+    if(file){
+        await upload(path, file)
+        const imageRef = storageRef(storage, path + file.name);
+        const url = await getDownloadURL(imageRef);
+        studentData.value.imageUrl = url
+    }
+
+    //define if new
+    if(props.isNew){
+        try{
+            AddStudentData(studentData.value)
+            visible.value = false
+            
+        } catch(error){
+    
+        }
+    } else{
+        try{
+            updateStudentData(tableName, studentData.value, props.studentData.id)
+            visible.value = false
+        
+        } catch(error){
+            console.error(error);
+        }
 
     }
+    clear()
 }
 </script>
 <template>
@@ -158,6 +178,7 @@ async function addData(){
                             <div class="flex justify-center items-center w-full">
                                 <label for="dropzone-file" class="flex flex-col justify-center items-center w-full h-64 bg-gray-50 rounded-lg border-2 border-gray-300 border-dashed cursor-pointer dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
                                     <img class="h-60 max-w-full" :src="image" alt="image description" v-if="image">
+                                    <img class="h-60 max-w-full" :src="studentData.imageUrl" alt="image description" v-else-if="studentData.imageUrl">
                                     <div class="flex flex-col justify-center items-center pt-5 pb-6" v-else>
                                         <svg aria-hidden="true" class="mb-3 w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -172,7 +193,7 @@ async function addData(){
                             </div>
                         </div>
                         <div class="items-center space-y-4 sm:flex sm:space-y-0 sm:space-x-4">
-                            <Btn @click="addData" :label="isNew? 'Add Student' : 'Update Studente'" class="w-full sm:w-auto justify-center text-white inline-flex bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"/>
+                            <Btn @click="addData" :label="isNew? 'Add Student' : 'Update Student'" class="w-full sm:w-auto justify-center text-white inline-flex bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"/>
                             <Btn @click="visible = false" label="Discard" icon="pi pi-times"  class="w-full sm:w-auto justify-center text-black-500 inline-flex bg-white hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"/>
                         </div>
                     </form>

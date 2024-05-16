@@ -131,7 +131,7 @@ const filteredStudents = computed(() => {
                                     <div class="flex items-center space-x-4">
                                         <AddStudentModal :isNew="false" :studentData="student"/>
                                         <PreviewStudent :studentData="student"></PreviewStudent>
-                                        <ConfirmPop/>
+                                        <ConfirmPop :id="student.id"/>
                                     </div>
                                 </td>
                             </tr>
