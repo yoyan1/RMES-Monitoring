@@ -5,7 +5,7 @@ import { getStorage } from 'firebase/storage'
 
 export const firebaseApp = initializeApp({
   // your application settings
- 
+  
 })
 
 // used for the firestore refs

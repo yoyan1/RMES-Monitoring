@@ -3,11 +3,12 @@ import {onMounted, ref} from 'vue'
 import { Html5Qrcode } from 'html5-qrcode';
 import { useRouter } from 'vue-router';
 import { useDocument } from 'vuefire'
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection } from "firebase/firestore";
+import { useCollection } from 'vuefire';
 import { db } from '@/firebaseConfig/config';
 import {getCurrentTime, getCurrentDate } from '@/stores/getDateAndTime';
 import Button from 'primevue/button';
-import { AddStudentData, updateStudentData } from '@/stores/crud';
+import { AddStudentData, AddStudentRecord, toastType, updateStudentData } from '@/stores/crud';
 
 const currentTime = ref()
 const {currentDate} = getCurrentDate()
@@ -18,6 +19,7 @@ setInterval(()=>{
 }, 100)
 
 const router = useRouter()
+const studentsData = useCollection(collection(db, 'students'))
 
 const scannedQrCodes = ref()
 const Html5Qrcodes = ref()
@@ -31,36 +33,30 @@ function createscanqrcodes(){
 
 const students = ref([]) 
 const errMsg = ref();
-let recentScanned;
+const recentScanned = ref();
 
 async function onScanSuccess(decodeResult){
     scannedQrCodes.value = decodeResult
-    if(recentScanned != decodeResult){
+    if(recentScanned.value != scannedQrCodes.value){
         try{
-            const docRef = doc(db, "students", scannedQrCodes.value);
-            const docSnap = await getDoc(docRef);
-
-            recentScanned = scannedQrCodes.value
-            const recentData = ref()
-            recentData.value = {...recentData.value, ...docSnap.data()};
-            students.value.push(docSnap.data())
-            const record = ref({
-                studentId: scannedQrCodes.value,
-                name: recentData.value.fullname,
-                attendance: 'present',
-                time_in: currentTime,
-                time_out: '',
-                date: currentDate,
-            })
-
-            // const docStudentRecord = doc(db, "students_reocrd", scannedQrCodes.value);
-            // if(docStudentRecord){
-            //     updateStudentData('students_record',record.value, scannedQrCodes.value );
-            // } else{
-
-            // }
-
-            await setDoc(doc(db, 'students_record', scannedQrCodes.value), record.value);
+            studentsData.value.forEach(student => {
+                if(student.id == scannedQrCodes.value){
+                    students.value.push(student)
+                    
+                    recentScanned.value = scannedQrCodes.value
+                    const recentData = ref()
+                    recentData.value = {...recentData.value, ...student};
+                    const record = ref({
+                        studentId: scannedQrCodes.value,
+                        name: recentData.value.fullname,
+                        attendance: 'present',
+                        time_in: currentTime,
+                        time_out: '',
+                        date: currentDate,
+                    })
+                    AddStudentRecord(record.value, scannedQrCodes.value)          
+                }
+            });
             
         } catch(error){
             console.error(error);
@@ -92,7 +88,6 @@ async function onScanSuccess(decodeResult){
             <div>
                 <h2 v-for="student in students" :key="student.id"> <img :src="student.imageUrl" class="rounded-full" alt="" width="100px" height="100px">{{ student.fullname }} time: {{ currentTime }}</h2>
                 {{ errMsg }}
-                {{ recentScanned }}
             </div>
         </div>
     </div>

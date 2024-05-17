@@ -1,10 +1,19 @@
-import { doc, addDoc, updateDoc, deleteDoc, collection, Timestamp } from "firebase/firestore";
+import { doc, setDoc, addDoc, updateDoc, deleteDoc, collection, query, getDoc, where} from "firebase/firestore";
 import { db } from "@/firebaseConfig/config";
+import { useCollection } from "vuefire";
 import { ref } from "vue";
+import { getCurrentDate, getCurrentTime } from "./getDateAndTime";
+
+const {currentDate} = getCurrentDate()
+const {timeString} = getCurrentTime()
+const studentsRecord = useCollection(collection(db, 'students_record'))
 
 const toastType = ref()
 const toastMessage = ref()
-
+const studentStatus = ref({
+    id: '',
+    status: ''
+})
 export async function AddStudentData(path, docData) {
     
     try{
@@ -20,7 +29,35 @@ export async function AddStudentData(path, docData) {
 }
 
 export async function AddStudentRecord(docData, id){
-    await setDoc(doc(db, "students_record", id), docData)
+    const docRef = doc(db, "students_record", id);
+    const docSnap = await getDoc(docRef);
+    studentsRecord.value.forEach(async (doc)=> {
+         // Compare the dates
+        if (doc.studentId == id && doc.date == currentDate.value) {
+            
+            console.log("User exists for the current date");
+            const newRecord = ref({
+                studentId: id,
+                name: doc.name,
+                attendance: 'out of school',
+                time_in: doc.time_in,
+                time_out: timeString,
+                date: doc.date,
+            })
+            try{
+            console.log(newRecord);
+                const docRef = doc(db, "students_record", id)
+                await updateDoc(docRef, newRecord.value)
+            } catch(error){
+                console.error("error updating record: ", error);
+            }
+            toastType.value = 'OUT';
+        } else {
+            // console.log("User not exists for the current date");
+            // await addDoc(collection(db, "students_record"), docData)
+        }
+    })
+
 }
 
 export async function updateStudentData(dbTableName, docData, id){
