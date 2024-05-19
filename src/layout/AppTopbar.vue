@@ -5,10 +5,12 @@ import { useRouter } from 'vue-router';
 import { getAuth, signOut } from 'firebase/auth';
 const { layoutConfig, onMenuToggle } = useLayout();
 
+const router = useRouter();
 const auth = getAuth()
 function signout(){
     signOut(auth).then(() => {
-      console.log("sign out");
+        console.log("sign out");
+        router.push('/')
     }).catch((error) => {
       
     });
@@ -16,7 +18,6 @@ function signout(){
 
 const outsideClickListener = ref(null);
 const topbarMenuActive = ref(false);
-const router = useRouter();
 
 onMounted(() => {
     bindOutsideClickListener();

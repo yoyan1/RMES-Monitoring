@@ -2,6 +2,7 @@
 import Button from "primevue/button";
 import Checkbox from "primevue/checkbox";
 import InputText from "primevue/inputtext";
+import Message from "primevue/message";
 import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { getRedirectResult, signInWithEmailAndPassword, signOut, } from 'firebase/auth'
@@ -27,29 +28,38 @@ function signin() {
     })
     .catch((error) => {
       const errorCode = error.code;
-      switch (error.code) {
-        case 'auth/invalid-email':
-              errorMessage.value = "Invalid Email"
-          break;
-        
-        case 'auth/user-not-found':
-            errorMessage.value = "No account with that email not found"
-        break;
-      
-        case 'auth/wrong-password':
-              errorMessage.value = "Incorrect password"
-          break;
-        
+      console.log(errorCode);
+      switch (errorCode) {
+        case 'auth/missing-email':
+            errorMessage.value = "Invalid Email"
+            setInterval(() => {
+                errorMessage.value = ''
+            }, 4000);
+            break;
+            
+            case 'auth/missing-password':
+                errorMessage.value = "Password is missing"
+                setInterval(() => {
+                    errorMessage.value = ''
+            }, 4000);
+            break;
         case 'auth/too-many-requests':
             errorMessage.value = "Too many request try again later"
-        break;
-      
+            setInterval(() => {
+                errorMessage.value = ''
+            }, 4000);
+            break;
+            
         default:
             errorMessage.value = "Email or Pasword Incorrect"
-          break;
+            setInterval(() => {
+                errorMessage.value = ''
+            }, 4000);
+            break;
       }
     });
 }
+
 // onMounted(() => {
 //   getRedirectResult(auth).catch((reason) => {
 //     console.error('Failed redirect result', reason)
@@ -58,6 +68,7 @@ function signin() {
 // })
 </script>
 <template>
+    
     <div class="container mx-auto flex flex-col items-center gap-3 drop-shadow-lg">
         <img src="../components/images/RMES-logo.png" width="100px" alt="">
         <div class="bg-white flex flex-col items-center rounded-xl" style="padding: 3rem 5rem">
@@ -65,7 +76,7 @@ function signin() {
             <h4>Welcome, Admin!</h4>
             <p>Sign in to continue</p>
             <div>
-                <p>{{ errorMessage }}</p>
+                <Message  class="bg-red-200 border-red-400 text-red-600" v-if="errorMessage">{{ errorMessage }}</Message>
                 <label for="email" class="block text-900 text-xl font-medium mb-2">Email</label>
                 <InputText v-model="email" id="email" type="email"  placeholder="Enter your email" class="bg-white w-full md:w-30rem mb-5" style="padding: 1rem; width:25rem" />
                 <label for="password" class="block text-900 text-xl font-medium mb-2">Password</label>

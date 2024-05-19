@@ -1,8 +1,21 @@
 <script setup>
 // import Calendar from '../components/Calendar.vue';
-import { useCurrentUser } from 'vuefire'
-
+import { onMounted, ref } from 'vue';
+import { getCurrentUser, useCurrentUser } from 'vuefire'
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/firebaseConfig/config';
+const authUser = ref({})
 const user = useCurrentUser()
+onMounted(async ()=>{
+    try{
+        const adminRef = doc(db, 'admin_info', user.value.uid)
+        const docAdmin = await getDoc(adminRef);
+        authUser.value = {...authUser.value, ... docAdmin.data()}
+    } catch(error){
+        console.error(error);
+    }
+})
+
 </script>
 <template>
     <div class="card flex gap-5 flex-nowrap">
@@ -52,6 +65,6 @@ const user = useCurrentUser()
             </div>
         </div>
     </div>
-    {{ user.email }}
+    {{ authUser.name }}
     <Calendar/>
 </template>

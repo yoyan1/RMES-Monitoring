@@ -1,9 +1,13 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
+import Message from 'primevue/message';
+import {isToast, toastType, toastMessage } from './stores/crud';
+
 </script>
 
 <template>
   <RouterView/>
+  <Message :everity="toastType" class="fixed top-0 right-0 z-50" v-if="isToast">{{ toastMessage }}</Message>
 </template>
 
 <style scoped>

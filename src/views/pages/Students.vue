@@ -3,13 +3,25 @@ import { ref, computed, onMounted } from 'vue';
 import AddStudentModal from '@/studentComponents/AddOrUpdate.vue';
 import ConfirmPop from '@/studentComponents/ConfirmationPop.vue';
 import PreviewStudent from '@/studentComponents/PreviewStudent.vue';
-import { useCollection } from 'vuefire'
-import { collection } from 'firebase/firestore'
+import {students, studentsRecord } from '@/stores/fetch.js';
+import { getCurrentDate } from '@/stores/getDateAndTime';
+import { useCurrentUser } from 'vuefire'
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig/config';
-import Message from 'primevue/message';
 
-const students = useCollection(collection(db, 'students')) //rendered firestore
+const authUser = ref({})
+const user = useCurrentUser()
+onMounted(async ()=>{
+    try{
+        const adminRef = doc(db, 'admin_info', user.value.uid)
+        const docAdmin = await getDoc(adminRef);
+        authUser.value = {...authUser.value, ... docAdmin.data()}
+    } catch(error){
+        console.error(error);
+    }
+})
 
+const {timeString} = getCurrentDate()
 const searchInput = ref('')//search input name and lrn
 const filterLevel = ref('')//filter grade level
 
@@ -37,8 +49,7 @@ const filteredStudents = computed(() => {
 })
 
 </script>
-<template>
-    <Message :severity="toastType.value" :sticky="false" v-if="toastType" :life="1000" class="fixed right-0 z-50">{{ toastMessage }}</Message>
+<template>  
     <!-- <section class="bg-gray-50 dark:bg-gray-900  antialiased"> -->
         <div class="mx-auto">
             <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
@@ -74,7 +85,7 @@ const filteredStudents = computed(() => {
                         </form>
                     </div>
                     <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                        <AddStudentModal :isNew="true" />
+                        <AddStudentModal :isNew="true" :staffId="authUser.id" v-if="authUser.role == 'staff'"/>
                         <select v-model="filterLevel" id="countries" class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 ">
                            <option value="">All</option>
                            <option value="I">Grade I</option>
@@ -120,18 +131,22 @@ const filteredStudents = computed(() => {
                                 </td>
                                 <td class="text-base  px-4 py-3 font-medium text-gray-900  dark:text-white">11</td>
                                 <td class="text-base  px-4 py-3 font-medium text-gray-900  dark:text-white">{{ student.gender }}</td>
-                                <td class="text-base  px-4 py-3 font-medium text-gray-900  dark:text-white">
-                                    <div class="flex items-center">
-                                        <!-- <div class="h-4 w-4 rounded-full inline-block mr-2 bg-red-700"></div> -->
-                                        offline 
+                                <td class="text-base   px-4 py-3 font-medium text-gray-900  dark:text-white">
+                                    <div v-for="status in studentsRecord" :key="status.id">
+                                        <div>
+                                            <div class="flex items-center" v-if="status.studentId = student.id && status.date == timeString">
+                                                <div class="h-4 w-4 rounded-full inline-block mr-2 " :class="status.attendance == 'present'? 'bg-green-700' : 'bg-red-700'"></div>
+                                                {{ status.attendance }}
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="text-base  px-4 py-3 font-medium text-gray-900  dark:text-white">just now</td>
                                 <td class="px-4 py-3 font-medium text-gray-900  dark:text-white">
                                     <div class="flex items-center space-x-4">
-                                        <AddStudentModal :isNew="false" :studentData="student"/>
+                                        <AddStudentModal :isNew="false" :studentData="student" v-if="authUser.role == 'staff'"/>
                                         <PreviewStudent :studentData="student"></PreviewStudent>
-                                        <ConfirmPop :id="student.id"/>
+                                        <ConfirmPop :id="student.id" v-if="authUser.role == 'staff'"/>
                                     </div>
                                 </td>
                             </tr>

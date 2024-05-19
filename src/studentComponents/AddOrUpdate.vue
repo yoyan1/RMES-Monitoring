@@ -20,6 +20,7 @@ const openPosition = (pos) => {
     visible.value = true;
 }
 const props = defineProps({
+    staffId: String,
     isNew: Boolean,
     studentData: Object
 })
@@ -40,7 +41,7 @@ const studentData = ref({
     section: '',
     lrn: 0,
     imageUrl: '',
-    adviser_id: '',
+    adviser_id: props.staffId.value,
 })
 
 onMounted(()=>{
