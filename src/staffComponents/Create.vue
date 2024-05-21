@@ -1,3 +1,43 @@
+<script setup>
+import Button from "primevue/button";
+import Dialog from "primevue/dialog";
+import InputText from "primevue/inputtext";
+import { ref } from "vue";
+import { getAuth, createUserWithEmailAndPassword} from 'firebase/auth'
+const visible = ref(false);
+
+function register () {
+    //need .value because ref
+    isLoading.value = !isLoading.value
+    createUserWithEmailAndPassword(getAuth(), email.value, password.value).then((data) => {
+        isNew.value = false
+        router.push('/editProfile')
+    }).catch((error) => {
+        console.log(error.code);
+        isLoading.value = !isLoading.value
+        switch (error.code) {
+            case 'auth/email-already-in-use':
+                errMsg.value = "Email already in use"
+                break;
+            case 'auth/weak-password':
+                errMsg.value = "weak password"
+                break;
+            case 'auth/missing-password':
+                errMsg.value = "password must not be empty"
+                break;
+            default:
+                break;
+        }
+    })
+}
+
+</script>
+<style scoped>
+.modal{
+    width: 100%; height: 100vh; background:#000000cb; z-index:200;
+    opacity: 25%;
+}
+</style>
 
 <template>
         <Button class="bg-blue-600 text-white hover:bg-blue-500" label="Add Staff" @click="visible = true" />
@@ -23,18 +63,3 @@
             </Dialog>
         </div>
 </template>
-
-<script setup>
-import Button from "primevue/button";
-import Dialog from "primevue/dialog";
-import InputText from "primevue/inputtext";
-import { ref } from "vue";
-
-const visible = ref(false);
-</script>
-<style scoped>
-.modal{
-    width: 100%; height: 100vh; background:#000000cb; z-index:200;
-    opacity: 25%;
-}
-</style>

@@ -3,7 +3,7 @@ import {onMounted, ref} from 'vue'
 import { Html5Qrcode } from 'html5-qrcode';
 import { useRouter } from 'vue-router';
 import { useDocument } from 'vuefire'
-import { doc, getDoc, setDoc, collection, query, where, getDocs, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, query, where, getDocs, deleteDoc, Timestamp, orderBy } from "firebase/firestore";
 import { useCollection } from 'vuefire';
 import { db } from '@/firebaseConfig/config';
 import {getCurrentTime, getCurrentDate } from '@/stores/getDateAndTime';
@@ -39,12 +39,21 @@ const getRecord = async()=>{
     recentRecord.value = []
     try{
         const queryRecord = query(collection(db, 'students_record'), where('date', '==', currentDate.value));
-        const queryAttendance = await getDocs(queryRecord);
-        
-        queryAttendance.forEach((doc) => {
-            recentRecord.value.push(doc.data())
-            
-        })
+        const querySnapshot = await getDocs(queryRecord);
+
+        const sortedAttendance = [];
+
+        querySnapshot.forEach((doc) => {
+            sortedAttendance.push(doc.data());
+        });
+
+        sortedAttendance.sort((a, b) => {
+            return b.timestamp - a.timestamp;
+        });
+
+        // Use the sortedAttendance array as needed
+        recentRecord.value = sortedAttendance;
+
     } catch(error){
         console.error(error);
     }
@@ -53,7 +62,9 @@ getRecord()
 const errMsg = ref();
 const recentScanned = ref();
 const record = ref([]);
+
 async function onScanSuccess(decodeResult){
+    play()   
     record.value = []
     scannedQrCodes.value = decodeResult
     if(recentScanned.value != scannedQrCodes.value){
@@ -73,12 +84,13 @@ async function onScanSuccess(decodeResult){
                         time_in: currentTime,
                         time_out: '',
                         date: currentDate,
-                        status: 'IN'
+                        status: 'IN',
+                        timestamp: Timestamp.now()
                     })
                     record.value.forEach(async doc =>{
-                        await AddStudentRecord(doc, doc.studentId, recentData.value)     
+                        await AddStudentRecord(doc, doc.studentId, recentData.value)  
+                        getRecord()
                     })
-                    getRecord()
                 }
             });
             
@@ -100,14 +112,21 @@ onMounted(()=>{
     createscanqrcodes()
 
 })
+const audioPlayer = ref(null);
 
+const play = () => {
+      audioPlayer.value.play();
+    };
 
 // Usage example:
 const collectionRef = collection(db, "students_record");
 
 </script>
 <template>
-    <div class="mx-full flex gap-10 drop-shadow-lg" style="width: 100%">
+    <audio ref="audioPlayer">
+      <source src="../components/audio/beep.mp3" type="audio/mpeg">
+    </audio>
+    <div class="mx-full flex gap-10 drop-shadow-lg" style="width: 100%; height: 100vh;">
         <div  class="bg-white" style="width: 100%">
             <div class="bg-blue-500 p-5">
                 <h3 class="text-white">Scan QR codes</h3>
@@ -128,8 +147,8 @@ const collectionRef = collection(db, "students_record");
                     <i class="text-white text-lg">San Carlos City, Negros Occidental</i>
                 </div>
             </div>
-            <div class="px-8">
-                <div class="flex items-center justify-between p-3 bg-gray-200 border border-gray-300"   v-for="student in recentRecord" :key="student.name">
+            <div class="px-8 overflow-auto overscroll-contain" style="max-height: 80vh; padding-bottom: 10px">
+                <div class="flex items-center justify-between p-3 bg-gray-200 border border-gray-300 "   v-for="student in recentRecord" :key="student.name">
                     <div class="flex items-center gap-5">
                         <img :src="student.imageUrl" class="h-10 w-10" size="xlarge" shape="circle" />
                         <div class="flex flex-col">

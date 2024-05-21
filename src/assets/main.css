@@ -1,1 +1,6 @@
 @import './base.css';
+:root{
+    --cyan-500: rgb(23, 108, 236);
+    --gray-500: rgb(124, 122, 122);
+    --orange-500: rgb(236, 165, 31);
+}

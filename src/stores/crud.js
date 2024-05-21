@@ -1,4 +1,4 @@
-import { doc, setDoc, addDoc, updateDoc, deleteDoc, collection, query, getDoc, where, limit, getDocs} from "firebase/firestore";
+import { doc, setDoc, addDoc, updateDoc, deleteDoc, collection, query, getDoc, where, limit, getDocs, Timestamp} from "firebase/firestore";
 import { db } from "@/firebaseConfig/config";
 import { useCollection } from "vuefire";
 import { ref } from "vue";
@@ -57,7 +57,8 @@ try {
         await addDoc(collection(db, "students_record"), docData)
         const updateStatus = {
             ... studentData,
-            status: 'Present'
+            status: 'Present',
+            
         }
         await updateStudentData('students', updateStatus, id)
         console.log("IN");
@@ -70,13 +71,14 @@ try {
                 ...data,
                 attendance: 'out of school',
                 time_out: timeString,
-                status: 'OUT'
+                status: 'OUT',
+                timestamp: Timestamp.now()
             };
     
             await updateDoc(docRef, updatedRecord);
             const updateStatus = {
                 ... studentData,
-                status: 'Out of school'
+                status: 'Out of school',
             }
             await updateStudentData('students', updateStatus, id)
             recentRecord.value = updatedRecord;

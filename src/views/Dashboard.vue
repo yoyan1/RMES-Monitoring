@@ -5,6 +5,8 @@ import { getCurrentUser, useCurrentUser } from 'vuefire'
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig/config';
 import { students, staff } from '../stores/fetch'
+import verticalCart from '../dashboardComponents/verticalCart.vue';
+import Dougnut from '../dashboardComponents/Dougnut.vue'
 const authUser = ref({})
 const user = useCurrentUser()
 onMounted(async ()=>{
@@ -66,6 +68,10 @@ onMounted(async ()=>{
             </div>
         </div>
     </div>
-    {{ authUser.name }}
-    <Calendar/>
+    <div class="flex gap-5 justify-between">
+        <Dougnut style="width:30%"/>
+        <div style="width:70%">
+            <verticalCart />
+        </div>
+    </div>
 </template>
