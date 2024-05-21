@@ -8,7 +8,7 @@ import { useCollection } from 'vuefire';
 import { db } from '@/firebaseConfig/config';
 import {getCurrentTime, getCurrentDate } from '@/stores/getDateAndTime';
 import Button from 'primevue/button';
-import { AddStudentData, AddStudentRecord, toastType, updateStudentData } from '@/stores/crud';
+import { AddStudentData, AddStudentRecord, toastType, updateStudentData, deleteAllDocuments } from '@/stores/crud';
 
 const currentTime = ref()
 const {currentDate} = getCurrentDate()
@@ -76,7 +76,7 @@ async function onScanSuccess(decodeResult){
                         status: 'IN'
                     })
                     record.value.forEach(async doc =>{
-                        await AddStudentRecord(doc, doc.studentId)     
+                        await AddStudentRecord(doc, doc.studentId, recentData.value)     
                     })
                     getRecord()
                 }
@@ -101,21 +101,6 @@ onMounted(()=>{
 
 })
 
-async function deleteAllDocuments(collectionRef) {
-    try {
-        // Get all documents in the collection
-        const queryAttendance = await getDocs(collectionRef);
-
-        // Delete each document
-        queryAttendance.forEach(async (doc) => {
-            await deleteDoc(doc.ref);
-        });
-
-        console.log("All documents deleted successfully");
-    } catch (error) {
-        console.error("Error deleting documents:", error);
-    }
-}
 
 // Usage example:
 const collectionRef = collection(db, "students_record");
@@ -149,7 +134,10 @@ const collectionRef = collection(db, "students_record");
                         <img :src="student.imageUrl" class="h-10 w-10" size="xlarge" shape="circle" />
                         <div class="flex flex-col">
                             <b class="text-xl"> {{ student.name }}</b>
-                            <i>time: {{ student.time_in }}</i>
+                            <div class="flex gap-5">
+                                <i>date: {{ student.date }}</i>
+                                <i>time: {{ student.time_in }}</i>
+                            </div>
                         </div>
                     </div>
                     <div class="h-5 w-5  rounded-full relative right-50" :class="student.status == 'IN'? 'bg-green-600' : 'bg-red-600'"></div>

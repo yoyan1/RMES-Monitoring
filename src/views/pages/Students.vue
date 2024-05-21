@@ -8,6 +8,7 @@ import { getCurrentDate } from '@/stores/getDateAndTime';
 import { useCurrentUser } from 'vuefire'
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebaseConfig/config';
+import { token } from '@/firebaseConfig/messaging';
 
 const authUser = ref({})
 const user = useCurrentUser()
@@ -57,7 +58,7 @@ const filteredStudents = computed(() => {
                     <div class="">
                         <h5 class="text-base ">
                             <span class="text-gray-500">All Students:</span>
-                            <span class="dark:text-white">100</span>
+                            <span class="dark:text-white">{{ studentsRecord.length }}</span>
                         </h5>
                         <h5 class="text-base text-gray-500 dark:text-gray-400">1-10 (100)</h5>
                     </div>
@@ -85,7 +86,7 @@ const filteredStudents = computed(() => {
                         </form>
                     </div>
                     <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
-                        <AddStudentModal :isNew="true" :staffId="authUser.id" v-if="authUser.role == 'staff'"/>
+                        <AddStudentModal :isNew="true" :staffId="user.uid" v-if="authUser.role == 'staff'"/>
                         <select v-model="filterLevel" id="countries" class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 ">
                            <option value="">All</option>
                            <option value="I">Grade I</option>
@@ -132,20 +133,21 @@ const filteredStudents = computed(() => {
                                 <td class="text-base  px-4 py-3 font-medium text-gray-900  dark:text-white">11</td>
                                 <td class="text-base  px-4 py-3 font-medium text-gray-900  dark:text-white">{{ student.gender }}</td>
                                 <td class="text-base   px-4 py-3 font-medium text-gray-900  dark:text-white">
-                                    <div v-for="status in studentsRecord" :key="status.id">
-                                        <div>
-                                            <div class="flex items-center" v-if="status.studentId = student.id && status.date == timeString">
-                                                <div class="h-4 w-4 rounded-full inline-block mr-2 " :class="status.attendance == 'present'? 'bg-green-700' : 'bg-red-700'"></div>
-                                                {{ status.attendance }}
-                                            </div>
-                                        </div>
+                                    <div class="flex items-center">
+                                        <div class="h-4 w-4 rounded-full inline-block mr-2 " :class="student.status == 'Present'? 'bg-green-700' : 'bg-red-700'"></div>
+                                        {{ student.status }}
                                     </div>
+                                    <!-- <div class="flex items-center" v-else-if="status.studentId = student.id">
+                                        <div class="h-4 w-4 rounded-full inline-block mr-2 " :class="status.attendance == 'present'? 'bg-green-700' : 'bg-red-700'"></div>
+                                        {{ status.attendance }}
+                                    </div> -->
+
                                 </td>
                                 <td class="text-base  px-4 py-3 font-medium text-gray-900  dark:text-white">just now</td>
                                 <td class="px-4 py-3 font-medium text-gray-900  dark:text-white">
                                     <div class="flex items-center space-x-4">
                                         <AddStudentModal :isNew="false" :studentData="student" v-if="authUser.role == 'staff'"/>
-                                        <PreviewStudent :studentData="student"></PreviewStudent>
+                                        <PreviewStudent :id="student.id" :studentData="student" :role="authUser.role"></PreviewStudent>
                                         <ConfirmPop :id="student.id" v-if="authUser.role == 'staff'"/>
                                     </div>
                                 </td>

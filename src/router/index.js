@@ -37,6 +37,21 @@ const router = createRouter({
                   name: 'attendance',
                   component: () => import('../views/pages/Attendance.vue')
               },
+              {
+                  path: 'pages/request',
+                  name: 'request',
+                  component: () => import('../views/pages/Request.vue')
+              },
+              {
+                  path: 'pages/accounts',
+                  name: 'accounts',
+                  component: () => import('../views/pages/Accounts.vue')
+              },
+              {
+                  path: 'pages/setting',
+                  name: 'setting',
+                  component: () => import('../views/pages/Setting.vue')
+              },
           ]
       },
   ]

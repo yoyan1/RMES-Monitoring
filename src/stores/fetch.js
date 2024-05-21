@@ -6,5 +6,6 @@ import { getCurrentUser, useCurrentUser } from 'vuefire'
 
 const studentsRecord = useCollection(collection(db, 'students_record'))
 const students = useCollection(collection(db, 'students'))
+const staff = useCollection(collection(db, 'admin_info'))
 
-export {students, studentsRecord}
+export {students, studentsRecord, staff}

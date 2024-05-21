@@ -41,9 +41,9 @@ export async function AddStudentData(path, docData) {
     }
 }
 
-export async function AddStudentRecord(docData, id){
+export async function AddStudentRecord(docData, id, studentData){
     const recentRecord = ref({});
-
+    
 try {
     const queryRecord = query(
         collection(db, 'students_record'),
@@ -55,6 +55,11 @@ try {
     const attendanceSnapshot = await getDocs(queryRecord);
     if (attendanceSnapshot.empty) {
         await addDoc(collection(db, "students_record"), docData)
+        const updateStatus = {
+            ... studentData,
+            status: 'Present'
+        }
+        await updateStudentData('students', updateStatus, id)
         console.log("IN");
     } else{
         for (const record of attendanceSnapshot.docs) {
@@ -69,6 +74,11 @@ try {
             };
     
             await updateDoc(docRef, updatedRecord);
+            const updateStatus = {
+                ... studentData,
+                status: 'Out of school'
+            }
+            await updateStudentData('students', updateStatus, id)
             recentRecord.value = updatedRecord;
             console.log("OUT");
         }
@@ -132,5 +142,22 @@ export async function deleteData(dbTableName, id){
         console.log(docData);
     }
 }
+
+export async function deleteAllDocuments(collectionRef) {
+    try {
+        // Get all documents in the collection
+        const queryDocuments = await getDocs(collectionRef);
+
+        // Delete each document
+        queryDocuments.forEach(async (doc) => {
+            await deleteDoc(doc.ref);
+        });
+
+        console.log("All documents deleted successfully");
+    } catch (error) {
+        console.error("Error deleting documents:", error);
+    }
+}
+
 
 export {isToast, toastType, toastMessage}
